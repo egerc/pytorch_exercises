@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import TensorDataset
 import numpy as np
+import matplotlib.pyplot as plt
 
 def return_label_maps_from_adata(adata, category):
     label_to_id = {label: idx for idx, label in enumerate(adata.obs[category].unique())}
@@ -78,3 +79,20 @@ def evaluate_model(model, dataset, labels_map):
     
     print(f'The models accuracy is {(len(correct_guesses)/len(dataset))*100}%')
     print(f'The accuracy of random classification would be {(1/len(labels_map)*100)}%')
+
+
+def plot_scaled_losses(train_losses, val_losses, num_epochs):
+    epochs = range(num_epochs)
+
+    fig, ax1 = plt.subplots()
+
+    ax1.plot(epochs, train_losses, 'b', label='Training loss')
+    ax1.set_xlabel('Epoch')
+    ax1.set_ylabel('Training Loss', color='b')
+
+    ax2 = ax1.twinx()
+    ax2.plot(epochs, val_losses, 'r', label='Validation loss')
+    ax2.set_ylabel('Validation Loss', color='r')
+
+    fig.tight_layout()
+    plt.show()
