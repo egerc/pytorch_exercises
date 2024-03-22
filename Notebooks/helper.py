@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import TensorDataset
+import numpy as np
 
 
 # This function takes in your adata object as well as the category you want to train your data on as well as parameters for defining the datasets sizes and returns two pytorch datasets, one for training and one for testing
