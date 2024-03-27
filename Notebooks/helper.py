@@ -34,7 +34,7 @@ def obs_to_tensor(adata, category=None, training_size=None, testing_size=None,):
             labels = torch.tensor([label_to_id[label] for label in labels])
             return TensorDataset(tensors, labels)
         else:
-            return TensorDataset(tensors)
+            return tensors
 
     if testing_size + training_size <= adata.shape[0]:
         random_obs = np.random.choice(
