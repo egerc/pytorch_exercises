@@ -90,3 +90,11 @@ def plot_scaled_losses(train_losses, val_losses, num_epochs):
 
     fig.tight_layout()
     plt.show()
+
+def return_value_range(data_loader):
+    max_vals = []
+    min_vals = []
+    for i in data_loader:
+        max_vals.append(torch.max(i))
+        min_vals.append(torch.min(i))
+    return(int(min(min_vals)), int(max(max_vals)))
