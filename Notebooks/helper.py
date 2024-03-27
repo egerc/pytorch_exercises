@@ -14,51 +14,45 @@ def return_dataset_sizes(adata, ratio, pct_of_data=1):
     test_obs_num = obs_num - train_obs_num
     return(train_obs_num, test_obs_num)
 
-# This function takes in your adata object as well as the category you want to train your data on as well as parameters for defining the datasets sizes and returns two pytorch datasets, one for training and one for testing
-def obs_to_tensor(adata, category=None, training_size=None, test_size=None):
-    # This helper function returns a single pytorch dataset from the adata object given a list of observations
-    def tensors_to_dataset(adata, obs_list, category, label_to_id):
+def obs_to_tensor(adata, category=None, training_size=None, testing_size=None,):
+    
+    def tensors_to_dataset(obs_list):
         tensors = []
-        labels = []
         for obs in obs_list:
             tensors.append(
-                torch.tensor(
-                    adata[adata.obs_names == obs].X
-                    .toarray()
-                )
-            )
-            labels.append(
-                adata[adata.obs_names == obs].obs[category].iloc[0]
+                torch.tensor(adata[adata.obs_names == obs].X.toarray())
             )
         tensors = torch.squeeze(torch.stack(tensors))
-        labels = torch.tensor([label_to_id[label] for label in labels])
-        return TensorDataset(tensors, labels)
+        if category != None:
+            labels = []
+            for obs in obs_list:
+                labels.append(
+                    adata[adata.obs_names == obs]
+                    .obs[category]
+                    .iloc[0]
+                )
+            labels = torch.tensor([label_to_id[label] for label in labels])
+            return TensorDataset(tensors, labels)
+        else:
+            return TensorDataset(tensors)
 
-    # The purpose of these dictionaries is to encode the values of the desired category as integers
-    label_to_id, id_to_label = return_label_maps_from_adata(adata, category)
-
-    # Making sure the total dataset size doesnt exceed the number of observations in the adata object
-    if test_size + training_size <= adata.shape[0]:
-        # Randomly sampling from the observations of the adata object
+    if testing_size + training_size <= adata.shape[0]:
         random_obs = np.random.choice(
             adata.obs.index,
-            size=training_size + test_size,
+            size=training_size + testing_size,
             replace=False,
         )
-        # Creating two subsets of the sampled observations for training and testing purposes
         random_obs_train = random_obs[:training_size]
-        random_obs_test = random_obs[-test_size:]
-
-        # Creating the datasets using the helper function from the two subset samples
-        training_data = tensors_to_dataset(adata, random_obs_train, category, label_to_id)
-        testing_data = tensors_to_dataset(adata, random_obs_test, category, label_to_id)
-
-    return(
-        training_data,
-        testing_data,
-        id_to_label,
-    )
-
+        random_obs_test = random_obs[-testing_size:]
+        if category != None:
+            label_to_id, id_to_label = return_label_maps_from_adata(adata, category)
+            training_data = tensors_to_dataset(random_obs_train)
+            testing_data = tensors_to_dataset(random_obs_test)
+            return (training_data, testing_data, id_to_label)
+        else:
+            training_data = tensors_to_dataset(random_obs_train)
+            testing_data = tensors_to_dataset(random_obs_test)
+            return (training_data, testing_data)
 
 def evaluate_model(model, dataset, labels_map):
 
