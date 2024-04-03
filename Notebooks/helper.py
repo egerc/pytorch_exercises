@@ -75,7 +75,7 @@ def evaluate_model(model, dataset, labels_map):
     print(f'The accuracy of random classification would be {(1/len(labels_map)*100)}%')
 
 
-def plot_scaled_losses(train_losses, val_losses, num_epochs):
+def plot_scaled_losses(train_losses, val_losses, num_epochs, log_scale=False):
     epochs = range(num_epochs)
 
     fig, ax1 = plt.subplots()
@@ -87,6 +87,10 @@ def plot_scaled_losses(train_losses, val_losses, num_epochs):
     ax2 = ax1.twinx()
     ax2.plot(epochs, val_losses, 'r', label='Validation loss')
     ax2.set_ylabel('Validation Loss', color='r')
+
+    if log_scale == True:
+        ax1.set_yscale('log')
+        ax2.set_yscale('log')
 
     fig.tight_layout()
     plt.show()
